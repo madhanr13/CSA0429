@@ -1,82 +1,73 @@
 #include <stdio.h>
 
 int main() {
-    int frames, pages;
-
-    printf("Enter number of frames: ");
-    scanf("%d", &frames);
+    int n, f, i, j, k, faults = 0, hit;
 
     printf("Enter number of pages: ");
-    scanf("%d", &pages);
+    scanf("%d", &n);
 
-    int ref[pages], frame[frames];
-    int page_faults = 0;
+    int pages[n];
+    printf("Enter page reference string:\n");
+    for(i = 0; i < n; i++)
+        scanf("%d", &pages[i]);
 
-    printf("Enter reference string: ");
-    for (int i = 0; i < pages; i++)
-        scanf("%d", &ref[i]);
+    printf("Enter number of frames: ");
+    scanf("%d", &f);
 
-    for (int i = 0; i < frames; i++)
+    int frame[f];
+    for(i = 0; i < f; i++)
         frame[i] = -1;
 
-    for (int i = 0; i < pages; i++) {
-        int page = ref[i];
-        int hit = 0;
+    printf("\nPage\tFrames\n");
 
-        // Check if page is already in frame
-        for (int j = 0; j < frames; j++) {
-            if (frame[j] == page) {
+    for(i = 0; i < n; i++) {
+        hit = 0;
+
+        // Check hit
+        for(j = 0; j < f; j++)
+            if(frame[j] == pages[i]) {
                 hit = 1;
                 break;
             }
-        }
 
-        if (!hit) {
-            int pos = -1, farthest = -1;
+        if(!hit) {
+            int pos = -1, farthest = i + 1;
 
-            // Look for empty frame first
-            for (int j = 0; j < frames; j++) {
-                if (frame[j] == -1) {
+            for(j = 0; j < f; j++) {
+                int found = 0;
+
+                for(k = i + 1; k < n; k++) {
+                    if(frame[j] == pages[k]) {
+                        if(k > farthest) {
+                            farthest = k;
+                            pos = j;
+                        }
+                        found = 1;
+                        break;
+                    }
+                }
+
+                if(!found) { // not used again
                     pos = j;
                     break;
                 }
             }
 
-            // If no empty frame → find optimal victim
-            if (pos == -1) {
-                for (int j = 0; j < frames; j++) {
-                    int next_use = -1;
+            if(pos == -1) pos = 0;
 
-                    for (int k = i + 1; k < pages; k++) {
-                        if (frame[j] == ref[k]) {
-                            next_use = k;
-                            break;
-                        }
-                    }
-
-                    if (next_use == -1) {   // Never used again
-                        pos = j;
-                        break;
-                    }
-                    else if (next_use > farthest) {
-                        farthest = next_use;
-                        pos = j;
-                    }
-                }
-            }
-
-            frame[pos] = page;
-            page_faults++;
+            frame[pos] = pages[i];
+            faults++;
         }
 
-        // Print frames
-        printf("Frames: ");
-        for (int j = 0; j < frames; j++)
-            printf("%d ", frame[j]);
+        printf("%d\t", pages[i]);
+        for(j = 0; j < f; j++)
+            if(frame[j] != -1)
+                printf("%d ", frame[j]);
+            else
+                printf("- ");
         printf("\n");
     }
 
-    printf("\nTotal Page Faults = %d\n", page_faults);
-
+    printf("\nTotal Page Faults = %d\n", faults);
     return 0;
 }

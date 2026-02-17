@@ -1,51 +1,39 @@
 #include <stdio.h>
 
 int main() {
-    int frames, pages;
-
-    printf("Enter number of frames: ");
-    scanf("%d", &frames);
+    int n, f, i, j, k = 0, faults = 0, hit;
 
     printf("Enter number of pages: ");
-    scanf("%d", &pages);
+    scanf("%d", &n);
 
-    int ref[pages], frame[frames];
-    int front = 0, page_faults = 0;
+    int pages[n];
+    printf("Enter page reference string:\n");
+    for(i = 0; i < n; i++)
+        scanf("%d", &pages[i]);
 
-    printf("Enter reference string: ");
-    for (int i = 0; i < pages; i++)
-        scanf("%d", &ref[i]);
+    printf("Enter number of frames: ");
+    scanf("%d", &f);
 
-    for (int i = 0; i < frames; i++)
+    int frame[f];
+    for(i = 0; i < f; i++)
         frame[i] = -1;
 
-    for (int i = 0; i < pages; i++) {
-        int page = ref[i];
-        int hit = 0;
+    for(i = 0; i < n; i++) {
+        hit = 0;
 
-        // Check if page is already in frame
-        for (int j = 0; j < frames; j++) {
-            if (frame[j] == page) {
+        for(j = 0; j < f; j++)
+            if(frame[j] == pages[i]) {
                 hit = 1;
                 break;
             }
-        }
 
-        // If miss → replace using FIFO
-        if (!hit) {
-            frame[front] = page;
-            front = (front + 1) % frames;
-            page_faults++;
+        if(!hit) {
+            frame[k] = pages[i];
+            k = (k + 1) % f;   // FIFO rotation
+            faults++;
         }
-
-        // Print current frame status
-        printf("Frames: ");
-        for (int j = 0; j < frames; j++)
-            printf("%d ", frame[j]);
-        printf("\n");
     }
 
-    printf("\nTotal Page Faults = %d\n", page_faults);
-
+    printf("Total Page Faults = %d\n", faults);
     return 0;
 }

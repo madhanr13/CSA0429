@@ -1,75 +1,61 @@
 #include <stdio.h>
 
 int main() {
-    int frames, pages;
-
-    printf("Enter number of frames: ");
-    scanf("%d", &frames);
+    int n, f, i, j, k, faults = 0, hit;
 
     printf("Enter number of pages: ");
-    scanf("%d", &pages);
+    scanf("%d", &n);
 
-    int ref[pages], frame[frames], last_used[frames];
-    int time = 0, page_faults = 0;
+    int pages[n];
+    printf("Enter page reference string:\n");
+    for(i = 0; i < n; i++)
+        scanf("%d", &pages[i]);
 
-    printf("Enter reference string: ");
-    for (int i = 0; i < pages; i++)
-        scanf("%d", &ref[i]);
+    printf("Enter number of frames: ");
+    scanf("%d", &f);
 
-    for (int i = 0; i < frames; i++) {
+    int frame[f], time[f], counter = 0;
+
+    for(i = 0; i < f; i++) {
         frame[i] = -1;
-        last_used[i] = -1;
+        time[i] = 0;
     }
 
-    for (int i = 0; i < pages; i++) {
-        int page = ref[i];
-        time++;
+    printf("\nPage\tFrames\n");
 
-        int hit = 0;
-        for (int j = 0; j < frames; j++) {
-            if (frame[j] == page) {
+    for(i = 0; i < n; i++) {
+        hit = 0;
+
+        for(j = 0; j < f; j++) {
+            if(frame[j] == pages[i]) {
+                counter++;
+                time[j] = counter;
                 hit = 1;
-                last_used[j] = time;
                 break;
             }
         }
 
-        if (!hit) {
-            int pos = -1;
+        if(!hit) {
+            int lru = 0;
+            for(j = 1; j < f; j++)
+                if(time[j] < time[lru])
+                    lru = j;
 
-            // Check empty frame first
-            for (int j = 0; j < frames; j++) {
-                if (frame[j] == -1) {
-                    pos = j;
-                    break;
-                }
-            }
-
-            // If no empty frame → find LRU
-            if (pos == -1) {
-                int min = last_used[0];
-                pos = 0;
-                for (int j = 1; j < frames; j++) {
-                    if (last_used[j] < min) {
-                        min = last_used[j];
-                        pos = j;
-                    }
-                }
-            }
-
-            frame[pos] = page;
-            last_used[pos] = time;
-            page_faults++;
+            frame[lru] = pages[i];
+            counter++;
+            time[lru] = counter;
+            faults++;
         }
 
-        // Print frame contents
-        printf("Frames: ");
-        for (int j = 0; j < frames; j++)
-            printf("%d ", frame[j]);
+        printf("%d\t", pages[i]);
+        for(j = 0; j < f; j++)
+            if(frame[j] != -1)
+                printf("%d ", frame[j]);
+            else
+                printf("- ");
         printf("\n");
     }
 
-    printf("\nTotal Page Faults = %d\n", page_faults);
-
+    printf("\nTotal Page Faults = %d\n", faults);
     return 0;
 }
